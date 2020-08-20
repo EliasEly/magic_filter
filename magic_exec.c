@@ -101,7 +101,7 @@ int main(int argc, char** argv){
 	struct timespec start, end;
     clock_gettime(CLOCK_REALTIME, &start);
    	for(int i = 0; i < NLOOP; i++){
-		magicfilter1d_naive_(&n, &ndat, source, dest);
+		magicfilter1d_naive_(&n, &ndat, data_tmp, data_out2);
 	}
 	clock_gettime(CLOCK_REALTIME, &end);
 	flop_compute("MagicFiler_naive_ : ", NLOOP*(8*16*2+2*(n-16))*ndat, end.tv_nsec-start.tv_nsec);
@@ -109,7 +109,7 @@ int main(int argc, char** argv){
 
 	clock_gettime(CLOCK_REALTIME, &start);
    	for(int i = 0; i < NLOOP; i++){
-		magicfilter1d_naive_o1_(&n, &ndat, source, dest);
+		magicfilter1d_naive_o1_(&n, &ndat, data_tmp, data_out2);
 	}
 	clock_gettime(CLOCK_REALTIME, &end);
 	flop_compute("MagicFiler_naive_o1_ : ", NLOOP*(8*16*2+2*(n-16))*ndat, end.tv_nsec-start.tv_nsec);
@@ -117,14 +117,14 @@ int main(int argc, char** argv){
 
 	clock_gettime(CLOCK_REALTIME, &start);
    	for(int i = 0; i < NLOOP; i++){
-		magicfilter1d_naive_o2_(&n, &ndat, source, dest);
+		magicfilter1d_naive_o2_(&n, &ndat, data_tmp, data_out2);
 	}
 	clock_gettime(CLOCK_REALTIME, &end);
 	flop_compute("MagicFiler_naive_o2_ : ", NLOOP*(8*16*2+2*(n-16))*ndat, end.tv_nsec-start.tv_nsec);
 	
 	clock_gettime(CLOCK_REALTIME, &start);
    	for(int i = 0; i < NLOOP; i++){
-		magicfilter1d_naive_o3_(&n, &ndat, source, dest);
+		magicfilter1d_naive_o3_(&n, &ndat, data_tmp, data_out2);
 	}
 	clock_gettime(CLOCK_REALTIME, &end);
 	flop_compute("MagicFiler_naive_o3_ : ", NLOOP*(8*16*2+2*(n-16))*ndat, end.tv_nsec-start.tv_nsec);
