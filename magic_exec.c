@@ -9,10 +9,11 @@
 #include <time.h>
 #include <assert.h>
 #include <math.h>
+#include "perf.h"
 #include "magic_exec.h"
 
-#define CONV_REF magicfilter1d_naive_o1_
-#define CONV magicfilter1d_sse_ 
+#define CONV_REF magicfilter1d_naive_o3_
+#define CONV magicfilter1d_naive_ 
 
 
 #define SIZE 65536
@@ -55,21 +56,21 @@ int main(int argc, char** argv){
     double* dest = calloc(SIZE, sizeof(double));
     double* dest2 = calloc(SIZE, sizeof(double));
 
-    printf("\n******* - MagicFilter sans transposition NAIVE - *******\n\n");
+    printf("******* - MagicFilter sans transposition NAIVE - *******\n");
     magicfilter1d_naive_(&n, &ndat, source, dest);
 
     
-    printf("\n******* - MagicFilter sans transposition NAIVE + Boucle déroulée - *******\n\n");
+    printf("******* - MagicFilter sans transposition NAIVE + Boucle déroulée - *******\n");
     magicfilter1d_naive_bis_(&n, &ndat, source, dest2);
 
     check(dest, dest2, SIZE);
 
-	double * data_in = malloc(sizeof(double) * TOTAL);
+    printf("FIRST CHECK OK\n");
+
+	double * data_in = init_vector(TOTAL);
 	double * data_tmp = calloc(sizeof(double), TOTAL);
 	double * data_out = calloc(sizeof(double), TOTAL);
 	double * data_out2 = calloc(sizeof(double), TOTAL);
-
-    init_rand(data_in, TOTAL);
 
 	n = 2*X;
 	ndat = 2*Y*2*Z;
@@ -92,6 +93,18 @@ int main(int argc, char** argv){
 	CONV_REF(&n, &ndat, data_tmp, data_out2);
 
 	check(data_out, data_out2, TOTAL);
+	printf("SECOND CHECK OK\n");
+
+	struct timespec start, end;
+    	clock_gettime(CLOCK_REALTIME, &start);
+   	for(int i = 0; i < 10; i++){
+		magicfilter1d_naive_
+	}
+    	clock_gettime(CLOCK_REALTIME, &end);
+    	printf("START = %ld - END = %ld\n", start.tv_nsec, end.tv_nsec);
+    	flop_compute("MagicFiler_naive_ : ", 10*(8*16*2+2*(n-16))*ndat, end.tv_nsec-start.tv_nsec);
+
+
 	return 0;
 
     free(dest);

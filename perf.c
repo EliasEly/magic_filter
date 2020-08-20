@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <x86intrin.h>
 #include <time.h>
 
 // The cycle time
@@ -9,13 +8,11 @@ static const float cycle_duration = (float) 1 / (float) 3.1;
 static unsigned long long int residue;
 
 void perf_init(){
-    unsigned long long int start, end;
+    struct timespec start, end;
+    clock_gettime(CLOCK_REALTIME, &start);
+    clock_gettime(CLOCK_REALTIME, &end);
 
-    start = _rdtsc();
-
-    end = _rdtsc();
-
-    residue = end - start;
+    residue = end.tv_nsec - start.tv_nsec;
 
     return;
 }
