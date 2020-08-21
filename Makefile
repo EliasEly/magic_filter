@@ -1,11 +1,11 @@
 CC=gcc
-OPTIONS=-O3 -g -Wall -Werror -march=armv8-a+sve -msve-vector-bits=128
+OPTIONS=-O2 -g -Wall -Werror
 EXEC=magic_exec
 
 all: $(EXEC)
 
 magic_exec: magic_exec.o MagicFilter_naive.o perf.o
-	$(CC)  -march=armv8-a+sve -msve-vector-bits=128 -o $@ $^
+	$(CC) -o $@ $^
 
 magic_exec.o: magic_exec.c magic_exec.h
 	$(CC) $(OPTIONS) -o $@ -c $< 

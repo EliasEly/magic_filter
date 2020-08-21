@@ -98,7 +98,7 @@ void magicfilter1d_naive_(unsigned int *n, unsigned int *ndat, double const *sou
 //(0 à 8) (n-8 à n) possible de calculer les indices
 
 void magicfilter1d_naive_bis_(unsigned int *n, unsigned int *ndat, double const *source, double *dest) {
-  //should create an array of size n which would contain value ranging from 0 to n-1 (-8 à n+8) -> rajouter 8 pour indice valide
+  //should create an array of size n which would contain value ranging from (-8 à n+8) -> rajouter 8 pour indice valide
   //goal->avoid modulo computation in k loop 
   double tmp, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7;
   unsigned int i,j,k;
@@ -125,7 +125,7 @@ void magicfilter1d_naive_bis_(unsigned int *n, unsigned int *ndat, double const 
 //256 vecteur donc pas de 4 (double-64 bits)
 
 //utiliser clock_gettime pour mesurer perf
-void magicfilter1d_naive_o1_(unsigned int *n, unsigned int *ndat, double const *source, double *dest) {
+void magicfilter1d_naive_o1_(const unsigned int* restrict n, const unsigned int* restrict ndat,  const double* restrict source, double* restrict dest) {
   //should create an array of size n which would contain value ranging from 0 to n-1
   //goal->avoid modulo computation in k loop 
 
@@ -155,7 +155,7 @@ void magicfilter1d_naive_o1_(unsigned int *n, unsigned int *ndat, double const *
   } 
 }
 
-void magicfilter1d_naive_o2_(unsigned int *n, unsigned int *ndat, double const *source, double *dest) {
+void magicfilter1d_naive_o2_(const unsigned int* restrict n, const unsigned int* restrict ndat,  const double* restrict source, double* restrict dest) {
   //should create an array of size n which would contain value ranging from 0 to n-1
   //goal->avoid modulo computation in k loop 
 
@@ -222,16 +222,15 @@ void magicfilter1d_naive_o2_(unsigned int *n, unsigned int *ndat, double const *
 
 
 
-void magicfilter1d_naive_o3_(unsigned int *n, unsigned int *ndat, double const *source, double *dest) {
+void magicfilter1d_naive_o3_(const unsigned int* restrict n, const unsigned int* restrict ndat,  const double* restrict source, double* restrict dest) {
   //should create an array of size n which would contain value ranging from 0 to n-1
   //goal->avoid modulo computation in k loop 
-  unsigned int* idx = malloc(((*n)+16)*sizeof(int));
-  unsigned int x = 0;
-  while(x < (*n)+16){
-    *(idx+x)= (x-8+(*n))%(*n);
-    x++;
-  }
-
+	unsigned int* idx = malloc(((*n)+16)*sizeof(int));
+	unsigned int x = 0;
+	while(x < (*n)+16){
+		*(idx+x)= (x-8+(*n))%(*n);
+		x++;
+	}
 
   //sortir les 8 premières et 8 dernières itérations dans j-loop 
   //derouler i_loop (une ou deux fois)
