@@ -1,6 +1,6 @@
 CC=gcc
-OPTIONS=-O3 -g -Wall -Werror
-EXEC=magic_perf magic_test
+OPTIONS=-O3 -g -Wall -Werror -march=armv8-a+sve -msve-vector-bits=256
+EXEC=magic_perf
 
 all: $(EXEC)
 
