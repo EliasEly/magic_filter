@@ -1,3 +1,5 @@
 *.o
 *.dSYM
 magic_exec
+magic_test
+magic_perf
