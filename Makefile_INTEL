@@ -4,8 +4,14 @@ EXEC=magic_perf magic_test
 
 all: $(EXEC)
 
+magic_test: magic_test.o MagicFilter_naive.o
+	$(CC) -o $@ $^
+
 magic_perf: magic_perf.o MagicFilter_naive.o perf.o
 	$(CC) -o $@ $^
+
+magic_test.o: magic_test.c magic.h
+	$(CC) $(OPTIONS) -o $@ -c $< 
 
 magic_perf.o: magic_perf.c magic.h
 	$(CC) $(OPTIONS) -o $@ -c $< 
@@ -21,7 +27,6 @@ MagicFilter_sse.o: MagicFilter_sse.c magic.h
 
 perf.o: perf.c perf.h
 	$(CC) $(OPTIONS) -o $@ -c $<
-
 
 clean:
 	rm -f *.o $(EXEC)
