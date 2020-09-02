@@ -53,7 +53,7 @@ int main(int argc, char** argv){
     time_t t;
     srand((unsigned) time(&t));
     
-    unsigned int n, ndat;
+    int n, ndat;
 	double * data_in = calloc(sizeof(double), TOTAL);
 	double * data_out = calloc(sizeof(double), TOTAL);
 

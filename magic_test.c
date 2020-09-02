@@ -15,7 +15,7 @@
 #define NLOOP 10
 
 #define CONV magicfilter1d_naive_ 
-#define CONV_REF magicfilter1d_naive_o3_
+#define CONV_REF magicfilter1d_naive_o4_
 
 
 #define SIZE 65536
@@ -44,6 +44,7 @@ double* init_vector(unsigned int n){
 
 void check(double *arr_in, double *arr_out, size_t dim) {
 	for (size_t i = 0; i < dim; i++) {
+		printf("%zu : %f\n", i, arr_in[i] - arr_out[i]);
 		assert(fabs(arr_in[i]-arr_out[i]) < 1e-14);
 	}
 }
