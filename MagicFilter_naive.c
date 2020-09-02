@@ -80,7 +80,7 @@ const double filter_reverse_u[] __attribute__ ((aligned (16))) = {
                         8.4334247333529341094733325815816e-7
 };
 
-void magicfilter1d_naive_(unsigned int *n, unsigned int *ndat, double const *source, double *dest) {
+void magicfilter1d_naive_(int *n, int *ndat, double const *source, double *dest) {
   double tmp;
   unsigned int i,j,k;
   for(i=0;i<(*ndat);i++){
@@ -119,7 +119,7 @@ void magicfilter1d_naive_bis_(unsigned int *n, unsigned int *ndat, double const 
   } 
 }
 
-void magicfilter1d_naive_o1_(const unsigned int* restrict n, const unsigned int* restrict ndat,  const double* restrict source, double* restrict dest) {
+void magicfilter1d_naive_o1_(const int* restrict n, const int* restrict ndat,  const double* restrict source, double* restrict dest) {
   double tmp, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7;
   unsigned int i,j,k,index;
   for(i=0;i<(*ndat);i++){
@@ -143,7 +143,7 @@ void magicfilter1d_naive_o1_(const unsigned int* restrict n, const unsigned int*
   } 
 }
 
-void magicfilter1d_naive_o2_(const unsigned int* restrict n, const unsigned int* restrict ndat,  const double* restrict source, double* restrict dest) {
+void magicfilter1d_naive_o2_(const int* restrict n, const int* restrict ndat,  const double* restrict source, double* restrict dest) {
   double tmp, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7;
   unsigned int i,j,k,index;
   for(i=0;i<(*ndat);i++){
@@ -198,7 +198,7 @@ void magicfilter1d_naive_o2_(const unsigned int* restrict n, const unsigned int*
   } 
 }
 
-void magicfilter1d_naive_o3_(const unsigned int* restrict n, const unsigned int* restrict ndat,  const double* restrict source, double* restrict dest) {
+void magicfilter1d_naive_o3_(const int* restrict n, const int* restrict ndat,  const double* restrict source, double* restrict dest) {
 	unsigned int* idx = malloc(((*n)+16)*sizeof(int));
 	unsigned int x = 0;
 	while(x < (*n)+16){
@@ -261,77 +261,68 @@ void magicfilter1d_naive_o3_(const unsigned int* restrict n, const unsigned int*
 }
 
 void magicfilter1d_naive_o4_(const int* restrict n, const int* restrict ndat,  const double* restrict source, double* restrict dest) {
-  //should create an array of size n which would contain value ranging from 0 to n-1
-  //goal->avoid modulo computation in k loop 
 	int* idx = malloc(((*n)+16)*sizeof(int));
 	int x = 0;
 	while(x < (*n)+16){
 		*(idx+x)= (x-8+(*n))%(*n);
 		x++;
 	}
-//	printf("n = %d, ndat = %d\n", (*n), (*ndat));
 
-  //sortir les 8 premières et 8 dernières itérations dans j-loop 
-  //derouler i_loop multiple de 4 2*X*2Y(une ou deux fois)
-  //derouler j_loop (pas aussi important)
-  double tmp, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7;
+  double* tmp = malloc(8*sizeof(double));
   int i,j,k,index;
   for(i=0;i<(*ndat);i++){
-//	printf("%d ndat", (*ndat));
-//No instruction emulated in the 8 first iter
 //__START_TRACE();  
-    /* 8 first iter*/
     for(j=0; j<8; j++){
       index = j;
-      tmp=0, tmp1=0, tmp2=0, tmp3=0, tmp4=0, tmp5=0, tmp6=0, tmp7=0;
+      for(int i = 0; i<8; i++)
+        tmp[i] = 0;
       for(k=0;k<16;k+=8){
-        tmp+=source[idx[index+k]]*filter[k];
-        tmp1+=source[idx[(index+k+1)]]*filter[k+1];
-        tmp2+=source[idx[(index+k+2)]]*filter[k+2];
-        tmp3+=source[idx[(index+k+3)]]*filter[k+3];
-        tmp4+=source[idx[(index+k+4)]]*filter[k+4];
-        tmp5+=source[idx[(index+k+5)]]*filter[k+5];
-        tmp6+=source[idx[(index+k+6)]]*filter[k+6];
-        tmp7+=source[idx[(index+k+7)]]*filter[k+7];
+        tmp[0]+=source[idx[(index+k)]]*filter[k];
+        tmp[1]+=source[idx[(index+k+1)]]*filter[k+1];
+        tmp[2]+=source[idx[(index+k+2)]]*filter[k+2];
+        tmp[3]+=source[idx[(index+k+3)]]*filter[k+3];
+        tmp[4]+=source[idx[(index+k+4)]]*filter[k+4];
+        tmp[5]+=source[idx[(index+k+5)]]*filter[k+5];
+        tmp[6]+=source[idx[(index+k+6)]]*filter[k+6];
+        tmp[7]+=source[idx[(index+k+7)]]*filter[k+7];
       }
-      dest[j*(*ndat)]=tmp + tmp1 + tmp2 + tmp3 + tmp4 + tmp5 + tmp6 + tmp7;
+      dest[j*(*ndat)]=tmp[0]+ tmp[1] + tmp[2] + tmp[3] + tmp[4] + tmp[5] + tmp[6] + tmp[7];
     }
 //__STOP_TRACE();
 //__START_TRACE();
-   /* mid iter */
     for(j=8;j<(*n)-8;j++) {
       index = j-8;
-      tmp=0, tmp1=0, tmp2=0, tmp3=0, tmp4=0, tmp5=0, tmp6=0, tmp7=0;
+      for(int i = 0; i<8; i++)
+        tmp[i] = 0;
       for(k=0;k<16;k+=8){
-        tmp+=source[(index+k)]*filter[k];
-        tmp1+=source[(index+k+1)]*filter[k+1];
-        tmp2+=source[(index+k+2)]*filter[k+2];
-        tmp3+=source[(index+k+3)]*filter[k+3];
-        tmp4+=source[(index+k+4)]*filter[k+4];
-        tmp5+=source[(index+k+5)]*filter[k+5];
-        tmp6+=source[(index+k+6)]*filter[k+6];
-        tmp7+=source[(index+k+7)]*filter[k+7];
+        tmp[0]+=source[index+k]*filter[k];
+        tmp[1]+=source[(index+k+1)]*filter[k+1];
+        tmp[2]+=source[(index+k+2)]*filter[k+2];
+        tmp[3]+=source[(index+k+3)]*filter[k+3];
+        tmp[4]+=source[(index+k+4)]*filter[k+4];
+        tmp[5]+=source[(index+k+5)]*filter[k+5];
+        tmp[6]+=source[(index+k+6)]*filter[k+6];
+        tmp[7]+=source[(index+k+7)]*filter[k+7];
       }
-      dest[j*(*ndat)]=tmp + tmp1 + tmp2 + tmp3 + tmp4 + tmp5 + tmp6 + tmp7;
+      dest[j*(*ndat)]=tmp[0]+ tmp[1] + tmp[2] + tmp[3] + tmp[4] + tmp[5] + tmp[6] + tmp[7];
     }
 //__STOP_TRACE();
-    /*8 last iter */
 //__START_TRACE();
  for(j=(*n)-8; j<(*n); j++){
-//	printf("TOTO\n");
-      index = j;
-      tmp=0, tmp1=0, tmp2=0, tmp3=0, tmp4=0, tmp5=0, tmp6=0, tmp7=0;
+     index = j;
+     for(int i = 0; i<8; i++)
+        tmp[i] = 0;
       for(k=0;k<16;k+=8){
-        tmp+=source[idx[index+k]]*filter[k];
-        tmp1+=source[idx[(index+k+1)]]*filter[k+1];
-        tmp2+=source[idx[(index+k+2)]]*filter[k+2];
-        tmp3+=source[idx[(index+k+3)]]*filter[k+3];
-        tmp4+=source[idx[(index+k+4)]]*filter[k+4];
-        tmp5+=source[idx[(index+k+5)]]*filter[k+5];
-        tmp6+=source[idx[(index+k+6)]]*filter[k+6];
-        tmp7+=source[idx[(index+k+7)]]*filter[k+7];
+        tmp[0]+=source[idx[(index+k)]]*filter[k];
+        tmp[1]+=source[idx[(index+k+1)]]*filter[k+1];
+        tmp[2]+=source[idx[(index+k+2)]]*filter[k+2];
+        tmp[3]+=source[idx[(index+k+3)]]*filter[k+3];
+        tmp[4]+=source[idx[(index+k+4)]]*filter[k+4];
+        tmp[5]+=source[idx[(index+k+5)]]*filter[k+5];
+        tmp[6]+=source[idx[(index+k+6)]]*filter[k+6];
+        tmp[7]+=source[idx[(index+k+7)]]*filter[k+7];
       }
-      dest[j*(*ndat)]=tmp + tmp1 + tmp2 + tmp3 + tmp4 + tmp5 + tmp6 + tmp7;
+      dest[j*(*ndat)]=tmp[0]+ tmp[1] + tmp[2] + tmp[3] + tmp[4] + tmp[5] + tmp[6] + tmp[7];
     }
 //__STOP_TRACE();
     dest += 1;
