@@ -1,16 +1,22 @@
 CC=gcc
 OPTIONS=-O3 -g -Wall -Werror -march=armv8-a+sve -msve-vector-bits=256
-EXEC=magic_perf magic_test
+EXEC=magic_perf magic_check magic_single
 
 all: $(EXEC)
 
-magic_test: magic_test.o MagicFilter_naive.o
+magic_single: magic_single.o MagicFilter_naive.o
+	$(CC) -o $@ $^
+
+magic_check: magic_check.o MagicFilter_naive.o
 	$(CC) -o $@ $^
 
 magic_perf: magic_perf.o MagicFilter_naive.o perf.o
 	$(CC) -o $@ $^
 
-magic_test.o: magic_test.c magic.h
+magic_check.o: magic_check.c magic.h
+	$(CC) $(OPTIONS) -o $@ -c $< 
+
+magic_single.o: magic_single.c magic.h
 	$(CC) $(OPTIONS) -o $@ -c $< 
 
 magic_perf.o: magic_perf.c magic.h
