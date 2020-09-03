@@ -49,7 +49,7 @@ int main(int argc, char** argv){
     srand((unsigned) time(&t));
     
 	int n, ndat;
-	double * data_in = init_vector(TOTAL);
+	double * data_in = calloc(sizeof(double), TOTAL);
 	double * data_out = calloc(sizeof(double), TOTAL);
 
 	n = 2*X;
