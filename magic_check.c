@@ -12,13 +12,9 @@
 #include "perf.h"
 #include "magic.h"
 
-#define NLOOP 10
-
 #define CONV magicfilter1d_naive_ 
 #define CONV_REF magicfilter1d_naive_o4_
 
-
-#define SIZE 65536
 #define X 31
 #define Y 32
 #define Z 33

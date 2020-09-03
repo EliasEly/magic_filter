@@ -18,7 +18,6 @@
 #define CONV_REF magicfilter1d_naive_ 
 
 
-#define SIZE 65536
 #define X 31
 #define Y 32
 #define Z 33
