@@ -270,8 +270,7 @@ void magicfilter1d_naive_o4_(const int* restrict n, const int* restrict ndat,  c
 
   double* tmp = malloc(8*sizeof(double));
   int i,j,k,index;
-  for(i=0;i<(*ndat);i++){
-//__START_TRACE();  
+  for(i=0;i<(*ndat);i++){ 
     for(j=0; j<8; j++){
       index = j;
       for(int i = 0; i<8; i++)
@@ -288,8 +287,6 @@ void magicfilter1d_naive_o4_(const int* restrict n, const int* restrict ndat,  c
       }
       dest[j*(*ndat)]=tmp[0]+ tmp[1] + tmp[2] + tmp[3] + tmp[4] + tmp[5] + tmp[6] + tmp[7];
     }
-//__STOP_TRACE();
-//__START_TRACE();
     for(j=8;j<(*n)-8;j++) {
       index = j-8;
       for(int i = 0; i<8; i++)
@@ -306,8 +303,6 @@ void magicfilter1d_naive_o4_(const int* restrict n, const int* restrict ndat,  c
       }
       dest[j*(*ndat)]=tmp[0]+ tmp[1] + tmp[2] + tmp[3] + tmp[4] + tmp[5] + tmp[6] + tmp[7];
     }
-//__STOP_TRACE();
-//__START_TRACE();
  for(j=(*n)-8; j<(*n); j++){
      index = j;
      for(int i = 0; i<8; i++)
@@ -324,7 +319,6 @@ void magicfilter1d_naive_o4_(const int* restrict n, const int* restrict ndat,  c
       }
       dest[j*(*ndat)]=tmp[0]+ tmp[1] + tmp[2] + tmp[3] + tmp[4] + tmp[5] + tmp[6] + tmp[7];
     }
-//__STOP_TRACE();
     dest += 1;
     source += (*n);
   }
