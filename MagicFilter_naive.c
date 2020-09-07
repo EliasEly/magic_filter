@@ -268,7 +268,7 @@ void magicfilter1d_naive_o4_(const int* restrict n, const int* restrict ndat,  c
 		x++;
 	}
 
-  double* tmp = malloc(8*sizeof(double));
+  double tmp[8];
   int i,j,k,index;
   for(i=0;i<(*ndat);i++){ 
     for(j=0; j<8; j++){
@@ -285,7 +285,7 @@ void magicfilter1d_naive_o4_(const int* restrict n, const int* restrict ndat,  c
         tmp[6]+=source[idx[(index+k+6)]]*filter[k+6];
         tmp[7]+=source[idx[(index+k+7)]]*filter[k+7];
       }
-      dest[j*(*ndat)]=tmp[0]+ tmp[1] + tmp[2] + tmp[3] + tmp[4] + tmp[5] + tmp[6] + tmp[7];
+      dest[j*(*ndat)]=tmp[0] + tmp[1] + tmp[2] + tmp[3] + tmp[4] + tmp[5] + tmp[6] + tmp[7];
     }
     for(j=8;j<(*n)-8;j++) {
       index = j-8;
