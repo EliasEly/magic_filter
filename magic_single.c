@@ -49,12 +49,15 @@ int main(int argc, char** argv){
     srand((unsigned) time(&t));
     
 	int n, ndat;
-	double * data_in = init_vector(TOTAL);//calloc(sizeof(double), TOTAL);
+	double * data_in = init_vector(TOTAL);
 	double * data_out = calloc(sizeof(double), TOTAL);
 
 	n = 2*X;
 	ndat = 2*Y*2*Z;
 	CONV(&n, &ndat, data_in, data_out);
+
+    free(data_in);
+	free(data_out);
 
     return 0;
 }

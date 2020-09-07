@@ -79,6 +79,11 @@ int main(int argc, char** argv){
 	check(data_out, data_out2, TOTAL);
 	printf("Value check - OK\n");
 
+	free(data_in);
+	free(data_tmp);
+	free(data_out);
+	free(data_out2);
+
 
     return 0;
 }

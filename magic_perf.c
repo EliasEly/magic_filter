@@ -53,7 +53,7 @@ int main(int argc, char** argv){
     srand((unsigned) time(&t));
     
     int n, ndat;
-	double * data_in = calloc(sizeof(double), TOTAL);
+	double * data_in = init_vector(TOTAL);
 	double * data_out = calloc(sizeof(double), TOTAL);
 
 	n = 2*X;
@@ -89,6 +89,16 @@ int main(int argc, char** argv){
 	}
 	clock_gettime(CLOCK_REALTIME, &end);
 	flop_compute("MagicFiler_naive_o3_ : ", NLOOP*(8*16*2+2*(n-16))*ndat, (end.tv_sec- start.tv_sec)*1e9 + (end.tv_nsec-start.tv_nsec));
+
+	clock_gettime(CLOCK_REALTIME, &start);
+   	for(int i = 0; i < NLOOP; i++){
+		magicfilter1d_naive_o4_(&n, &ndat, data_in, data_out);
+	}
+	clock_gettime(CLOCK_REALTIME, &end);
+	flop_compute("MagicFiler_naive_o4_ : ", NLOOP*(8*16*2+2*(n-16))*ndat, (end.tv_sec- start.tv_sec)*1e9 + (end.tv_nsec-start.tv_nsec));
+
+	free(data_in);
+	free(data_out);
 
     return 0;
 }
