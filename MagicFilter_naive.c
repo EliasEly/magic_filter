@@ -303,7 +303,7 @@ void magicfilter1d_naive_o4_(const int* restrict n, const int* restrict ndat,  c
       }
       dest[j*(*ndat)]=tmp[0]+ tmp[1] + tmp[2] + tmp[3] + tmp[4] + tmp[5] + tmp[6] + tmp[7];
     }
- for(j=(*n)-8; j<(*n); j++){
+   for(j=(*n)-8; j<(*n); j++){
      index = j;
      for(int i = 0; i<8; i++)
         tmp[i] = 0;

@@ -1,5 +1,5 @@
-CC=gcc
-OPTIONS=-O3 -g -Wall -Werror -march=armv8-a+sve -msve-vector-bits=256
+CC=armclang
+OPTIONS=-O3 -g -Wall -Werror -march=armv8-a+sve -msve-vector-bits=512
 EXEC=magic_perf magic_check magic_single
 
 all: $(EXEC)
