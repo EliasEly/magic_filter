@@ -129,7 +129,7 @@ dest_t_ref = NArray.float(TOTAL)
 dest = NArray.float(TOTAL)
 
 def performance(res, x, y, z)
-  8*x*y*z * FILTER_SIZE*2 / (res[:duration] * 1e9)
+  TOTAL * FILTER_SIZE*2 / (res[:duration] * 1e9)
 end
 
 def apply_kernel(k, x, y, z, src, tmp, dest)
@@ -156,9 +156,12 @@ puts "magicfilter1d_t_naive_ #{X} #{Y} #{Z}"
 apply_kernel(magicfilter1d_t_ref, X, Y, Z, source, tmp, dest_t_ref)
 puts "#{bench_kernel(magicfilter1d_t_ref, X, Y, Z, source, tmp, dest)} GFlop/s"
 
-
-def print_inner_loop(i, j, k, n, tmp, offset, source, dest, filter, unroll_inner, modulo_array, modulo: true)
-  decl tmp
+def print_inner_loop(i, j, k, n, tmp, offset, source, dest, filter, unroll_inner, modulo_array, temp_array, modulo: true)
+  if unroll_inner && !temp_array
+    decl *tmp
+  else
+    decl tmp
+  end
   index = lambda { |l = 0|
     indx = j + offset + k
     indx +=  l if unroll_inner
@@ -190,32 +193,36 @@ def print_inner_loop(i, j, k, n, tmp, offset, source, dest, filter, unroll_inner
   end
 end
 
-def print_middle_loop(i, j, k, n, tmp, offset, source, dest, filter, unroll_inner, peel_middle, modulo_array)
+def print_middle_loop(i, j, k, n, tmp, offset, source, dest, filter, unroll_inner, peel_middle, modulo_array, temp_array)
   if peel_middle
     pr For(j, 0, -offset - 1) {
-      print_inner_loop(i, j, k, n, tmp, offset, source, dest, filter, unroll_inner, modulo_array)
+      print_inner_loop(i, j, k, n, tmp, offset, source, dest, filter, unroll_inner, modulo_array, temp_array)
     }
     pr For(j, -offset, n - (FILTER_SIZE - 1 + offset) -1) {
-      print_inner_loop(i, j, k, n, tmp, offset, source, dest, filter, unroll_inner, modulo_array, modulo: false)
+      print_inner_loop(i, j, k, n, tmp, offset, source, dest, filter, unroll_inner, modulo_array, temp_array, modulo: false)
     }
     pr For(j, n - (FILTER_SIZE - 1 + offset), n - 1) {
-      print_inner_loop(i, j, k, n, tmp, offset, source, dest, filter, unroll_inner, modulo_array)
+      print_inner_loop(i, j, k, n, tmp, offset, source, dest, filter, unroll_inner, modulo_array, temp_array)
     }
   else
     pr For(j, 0, n-1) {
-      print_inner_loop(i, j, k, n, tmp, offset, source, dest, filter, unroll_inner, modulo_array)
+      print_inner_loop(i, j, k, n, tmp, offset, source, dest, filter, unroll_inner, modulo_array, temp_array)
     }
   end
 end
 
-def magic_filter_gen(t: false, unroll_inner: false, peel_middle: false, modulo_array: false)
+def magic_filter_gen(t: false, unroll_inner: false, peel_middle: false, modulo_array: false, temp_array: true)
   raise "invalid unroll_inner: #{unroll_inner}" if unroll_inner && FILTER_SIZE % unroll_inner != 0
   n    = Int :n,    reference: true, dir: :in
   ndat = Int :ndat, reference: true, dir: :in
   source = Real :source, dim: [Dim(n), Dim(ndat)], dir: :in
   dest   = Real :dest,   dim: [Dim(ndat), Dim(n)], dir: :out
   if unroll_inner
-    tmp = Real :tmp, dim: Dim(unroll_inner), local: true
+    if temp_array
+      tmp = Real :tmp, dim: Dim(unroll_inner), local: true
+    else
+      tmp = unroll_inner.times.collect { |i| Real :"tmp#{i}" }
+    end
   else
     tmp = Real :tmp
   end
@@ -232,6 +239,7 @@ def magic_filter_gen(t: false, unroll_inner: false, peel_middle: false, modulo_a
   name << "_ui#{unroll_inner}" if unroll_inner
   name << "_p" if peel_middle
   name << "_m" if modulo_array
+  name << "_a" if temp_array
   magicfilter1d = Procedure(name, [n, ndat, source, dest]) {
     decl i, j, k
     if modulo_array
@@ -241,7 +249,7 @@ def magic_filter_gen(t: false, unroll_inner: false, peel_middle: false, modulo_a
       }
     end
     pr For(i, 0, ndat-1) {
-      print_middle_loop(i, j, k, n, tmp, offset, source, dest, filter, unroll_inner, peel_middle, modulo_array)
+      print_middle_loop(i, j, k, n, tmp, offset, source, dest, filter, unroll_inner, peel_middle, modulo_array, temp_array)
     }
   }
   k = CKernel::new {
@@ -264,7 +272,8 @@ end
 
 opt_space = OptimizationSpace::new( peel_middle: [false, true],
                                     modulo_array: [false, true],
-                                    unroll_inner: [false, 1, 2, 4, 8, 16] )
+                                    unroll_inner: [false, 1, 2, 4, 8, 16],
+                                    temp_array: [true, false] )
 optimizer = BruteForceOptimizer::new(opt_space, :randomize => true)
 
 
